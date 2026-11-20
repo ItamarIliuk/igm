@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industrial Gauge Monitor</title>
+<meta name="description" content="Industrial Gauge Monitor (IGM): reads the analog pressure gauges already installed in factories with a low-cost camera and NVIDIA Cosmos running locally. LABRIOT, UTFPR, Brazil.">
+<meta property="og:title" content="Industrial Gauge Monitor (IGM)">
+<meta property="og:description" content="Analog pressure gauges, now connected. No instrument replacement, no process downtime.">
+<meta property="og:image" content="https://itamariliuk.github.io/igm/assets/img/og-banner.png">
+<link rel="icon" href="assets/logo-512.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#D9772A; --brand-strong:#F0913F; --brand-deep:#8A4310;
+  --bg:#F8F7F5; --surface:#FFFFFF; --text:#14202B; --muted:#56636F; --line:#E2DED8;
+  --ok:#1F9D6B; --warn-bg:#FFF6E5; --warn-line:#F0C674; --warn-text:#5A4210;
+  --radius:14px; --maxw:1080px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151D; --surface:#151F2A; --text:#E6ECF1; --muted:#9AA8B5; --line:#26323F;
+    --brand:#F0913F; --brand-deep:#FFC48F; --warn-bg:#2A2414; --warn-line:#7A6120; --warn-text:#F3DFA8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151D; --surface:#151F2A; --text:#E6ECF1; --muted:#9AA8B5; --line:#26323F;
+  --brand:#F0913F; --brand-deep:#FFC48F; --warn-bg:#2A2414; --warn-line:#7A6120; --warn-text:#F3DFA8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--brand)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+html[lang="en"] [lang="pt"], html[lang="pt"] [lang="en"]{display:none}
+
+header.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none;color:var(--text)}
+.brand img{width:34px;height:34px;border-radius:8px;background:#111A24}
+nav.links{margin-left:auto;display:flex;gap:18px;font-size:14px}
+nav.links a{color:var(--muted);text-decoration:none}
+nav.links a:hover{color:var(--text)}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{border:0;background:transparent;color:var(--muted);padding:4px 10px;font:600 12px Inter,sans-serif;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--brand);color:#fff}
+@media (max-width:760px){nav.links{display:none}.lang{margin-left:auto}}
+
+.hero{padding:56px 0 32px}
+.hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media (max-width:860px){.hero .grid{grid-template-columns:1fr}}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.badge.hl{border-color:var(--brand);color:var(--brand-deep)}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.08;margin:0 0 14px;letter-spacing:-.02em}
+h1 span{color:var(--brand)}
+.lede{font-size:19px;color:var(--muted);margin:0 0 24px}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-block;padding:10px 18px;border-radius:10px;font-weight:600;text-decoration:none;border:1px solid var(--brand)}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.ghost{color:var(--brand)}
+.hero-logo{display:grid;place-items:center;background:#111A24;border-radius:var(--radius);padding:28px}
+.hero-logo img{width:min(320px,70%)}
+@media (max-width:860px){.hero-logo{padding:16px}.hero-logo img{width:150px}}
+.shot{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--surface);margin:0}
+.shot figcaption{font-size:13px;color:var(--muted);padding:10px 14px}
+
+section{padding:48px 0;border-top:1px solid var(--line)}
+h2{font-size:28px;margin:0 0 8px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 28px;max-width:760px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.stat b{display:block;font-size:26px;color:var(--brand);line-height:1.2}
+.stat span{font-size:13px;color:var(--muted)}
+
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
+@media (max-width:900px){.flow{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.flow{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.step::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;font-size:14px;margin-bottom:10px}
+.step h3{margin:0 0 6px;font-size:17px}
+.step p{margin:0;color:var(--muted);font-size:15px}
+.where{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:var(--brand-deep);background:color-mix(in srgb,var(--brand) 14%,transparent);padding:2px 8px;border-radius:6px}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:860px){.cards{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card p,.card li{color:var(--muted);font-size:15px}
+.card p{margin:0}
+
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.gallery{grid-template-columns:1fr}}
+.gallery.three{grid-template-columns:.7fr 1fr 1fr}
+@media (max-width:860px){.gallery.three{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.gallery.three{grid-template-columns:1fr}}
+.gallery.three .shot img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.gallery.three .shot.tall img{aspect-ratio:auto;height:100%;max-height:380px;object-fit:cover}
+
+.roadmap{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.roadmap li{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:7px}
+.done .dot{background:var(--ok)} .doing .dot{background:#E3A008} .next .dot{background:transparent;border:2px solid var(--muted)}
+.roadmap small{display:block;color:var(--muted)}
+
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:13px;padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.tag.nv{border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+
+.inception{display:flex;flex-wrap:wrap;align-items:center;gap:24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.inception .badge-box{flex:none;padding:12px;background:#fff;border-radius:8px}
+.inception .badge-box img{width:150px}
+.inception p{margin:0;color:var(--muted);flex:1;min-width:220px}
+
+footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+footer p{margin:6px 0}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/logo-512.png" alt="">Industrial Gauge Monitor</a>
+    <nav class="links">
+      <a href="#how"><span lang="en">How it works</span><span lang="pt">Como funciona</span></a>
+      <a href="#results"><span lang="en">Results</span><span lang="pt">Resultados</span></a>
+      <a href="#status"><span lang="en">Status</span><span lang="pt">Estado</span></a>
+      <a href="#team"><span lang="en">Team</span><span lang="pt">Equipe</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="pt" aria-pressed="false">PT</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="hero"><div class="wrap grid">
+  <div>
+    <div class="badges">
+      <span class="badge hl"><span lang="en">ABINC IoT Award 2026 finalist</span><span lang="pt">Finalista do Prêmio ABINC IoT 2026</span></span>
+      <span class="badge">LABRIOT · UTFPR</span>
+      <span class="badge">NVIDIA Inception program</span>
+    </div>
+    <h1>Industrial <span>Gauge</span> Monitor</h1>
+    <p class="lede" lang="en">Turns the analog pressure gauges already installed in factories into connected sensors. A low-cost camera, AI running inside the plant, and the pressure in bar and psi in your SCADA. No instrument replacement, no process downtime.</p>
+    <p class="lede" lang="pt">Transforma os manômetros analógicos que já estão instalados na fábrica em sensores conectados. Uma câmera de baixo custo, IA rodando dentro da planta e a pressão em bar e psi no seu SCADA. Sem trocar o instrumento e sem parar o processo.</p>
+    <div class="cta">
+      <a class="btn primary" href="#results"><span lang="en">See the results</span><span lang="pt">Ver os resultados</span></a>
+      <a class="btn ghost" href="#contact"><span lang="en">Talk to us</span><span lang="pt">Fale conosco</span></a>
+    </div>
+  </div>
+  <div class="hero-logo"><img src="assets/logo-512.png" width="512" height="512" alt="IGM logo: a pressure gauge with an orange needle and wireless waves"></div>
+</div></div>
+
+<section id="why"><div class="wrap">
+  <h2><span lang="en">The problem</span><span lang="pt">O problema</span></h2>
+  <p class="sub" lang="en">Most industrial plants still rely on analog gauges that someone has to walk to and read. Readings are infrequent, written by hand and hard to audit, and a slow drift can go unnoticed until it becomes a stop. Replacing every gauge with a digital transmitter means buying instruments, running cables and stopping the process.</p>
+  <p class="sub" lang="pt">A maior parte das plantas industriais ainda depende de manômetros analógicos que alguém precisa ir até o local para ler. As leituras são esparsas, anotadas à mão e difíceis de auditar, e uma variação lenta pode passar despercebida até virar uma parada. Trocar cada manômetro por um transmissor digital exige comprar instrumentos, passar cabos e parar o processo.</p>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2><span lang="en">How it works</span><span lang="pt">Como funciona</span></h2>
+  <p class="sub" lang="en">The camera is mounted in front of the existing gauge. Nothing touches the process line, and images can stay inside the plant.</p>
+  <p class="sub" lang="pt">A câmera é fixada em frente ao manômetro existente. Nada toca a linha de processo, e as imagens podem ficar dentro da planta.</p>
+  <div class="flow">
+    <div class="step">
+      <h3><span lang="en">Capture</span><span lang="pt">Capturar</span></h3>
+      <p lang="en">A Wi-Fi camera (ESP32-S3 + OV2640) photographs the gauge at a set interval and posts the image to the plant gateway.</p>
+      <p lang="pt">Uma câmera Wi-Fi (ESP32-S3 + OV2640) fotografa o manômetro num intervalo definido e envia a imagem ao gateway da planta.</p>
+      <span class="where"><span lang="en">at the gauge</span><span lang="pt">no manômetro</span></span>
+    </div>
+    <div class="step">
+      <h3><span lang="en">Find the dial</span><span lang="pt">Encontrar o mostrador</span></h3>
+      <p lang="en">NVIDIA Cosmos, running locally, finds the gauge in the image. If there is no gauge in view, it says so.</p>
+      <p lang="pt">O NVIDIA Cosmos, rodando localmente, encontra o manômetro na imagem. Se não houver manômetro na cena, ele informa isso.</p>
+      <span class="where"><span lang="en">local NVIDIA GPU</span><span lang="pt">GPU NVIDIA local</span></span>
+    </div>
+    <div class="step">
+      <h3><span lang="en">Measure the needle</span><span lang="pt">Medir a agulha</span></h3>
+      <p lang="en">A deterministic step measures the needle tip and converts the angle to bar and psi with a per-camera calibration. The number is auditable.</p>
+      <p lang="pt">Uma etapa determinística mede a ponta da agulha e converte o ângulo em bar e psi com calibração por câmera. O número é auditável.</p>
+      <span class="where"><span lang="en">plant gateway</span><span lang="pt">gateway da planta</span></span>
+    </div>
+    <div class="step">
+      <h3><span lang="en">Deliver</span><span lang="pt">Entregar</span></h3>
+      <p lang="en">The reading goes to SCADA and to the cloud (history, alerts, dashboards), with a confidence value. Low confidence raises an alert instead of a guess.</p>
+      <p lang="pt">A leitura vai para o SCADA e para a nuvem (histórico, alertas, painéis), com um valor de confiança. Confiança baixa gera alerta em vez de um palpite.</p>
+      <span class="where">SCADA · cloud</span>
+    </div>
+  </div>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <h2><span lang="en">Results so far</span><span lang="pt">Resultados até agora</span></h2>
+  <p class="sub" lang="en">Bench tests at LABRIOT with a 0–16 bar gauge, an air compressor, a USB camera and the ESP32 camera. Reference values were read visually (±0.2 bar).</p>
+  <p class="sub" lang="pt">Testes de bancada no LABRIOT com um manômetro de 0–16 bar, um compressor, uma câmera USB e a câmera ESP32. As referências foram lidas visualmente (±0,2 bar).</p>
+  <figure class="shot">
+    <img src="assets/img/pipeline-exemplos.jpg" width="1600" height="394" loading="lazy" alt="Four photos of the same pressure gauge at 0, 1.2, 2.2 and 3.6 bar, each with an orange line over the needle and the value read by the system">
+    <figcaption><span lang="en">Dial found by Cosmos and the needle tip measured (orange), next to the reference value.</span><span lang="pt">Mostrador encontrado pelo Cosmos e ponta da agulha medida (laranja), ao lado do valor de referência.</span></figcaption>
+  </figure>
+  <div class="stats">
+    <div class="stat"><b>0.09 bar</b><span lang="en">mean absolute error, 13 bench photos and the live camera</span><span lang="pt">erro médio absoluto, em 13 fotos de bancada e com a câmera ao vivo</span></div>
+    <div class="stat"><b>0.5%</b><span lang="en">of full scale, at check points outside the calibration</span><span lang="pt">do fundo de escala, em pontos fora da calibração</span></div>
+    <div class="stat"><b>~0.5 s</b><span lang="en">per reading on one NVIDIA RTX GPU, no image sent to the cloud</span><span lang="pt">por leitura numa GPU NVIDIA RTX, sem enviar imagem para a nuvem</span></div>
+    <div class="stat"><b>R$ 70–200</b><span lang="en">camera hardware per measuring point (about USD 15–40)</span><span lang="pt">de hardware de câmera por ponto de medição</span></div>
+  </div>
+</div></section>
+
+<section id="device"><div class="wrap">
+  <h2><span lang="en">The device and the dashboard</span><span lang="pt">O dispositivo e o painel</span></h2>
+  <p class="sub" lang="en">Each measuring point is a small Wi-Fi camera board that only captures and sends images. It is configured from a phone, authenticated with its own token and calibrated remotely.</p>
+  <p class="sub" lang="pt">Cada ponto de medição é uma pequena placa com câmera Wi-Fi que só captura e envia imagens. Ela é configurada pelo celular, autenticada com um token próprio e calibrada remotamente.</p>
+  <div class="gallery three">
+    <figure class="shot tall">
+      <img src="assets/img/esp32-placa.jpg" width="900" height="1600" loading="lazy" alt="Hand holding an ESP32-S3 board with an OV2640 camera module and a USB-C cable">
+      <figcaption><span lang="en">ESP32-S3 + OV2640 camera board.</span><span lang="pt">Placa ESP32-S3 com câmera OV2640.</span></figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="assets/img/esp32-frame.jpg" width="800" height="600" loading="lazy" alt="Image of the pressure gauge as captured by the ESP32 camera">
+      <figcaption><span lang="en">What the ESP32 camera sends to the gateway.</span><span lang="pt">O que a câmera ESP32 envia ao gateway.</span></figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="assets/img/esp32-sem-manometro.jpg" width="800" height="600" loading="lazy" alt="Image from the ESP32 camera with no gauge in view">
+      <figcaption><span lang="en">No gauge in view: the system raises an alert and keeps the last valid value.</span><span lang="pt">Sem manômetro na cena: o sistema gera alerta e mantém o último valor válido.</span></figcaption>
+    </figure>
+  </div>
+  <figure class="shot" style="margin-top:14px">
+    <img src="assets/img/dashboard-leitura-valida.jpg" width="1400" height="671" loading="lazy" alt="SCADA dashboard with a pressure dial showing 2 bar, 29 psi, 92% AI confidence and the gauge image next to it">
+    <figcaption><span lang="en">SCADA dashboard: pressure in bar and psi, AI confidence and history in Google Cloud BigQuery.</span><span lang="pt">Painel SCADA: pressão em bar e psi, confiança da IA e histórico no Google Cloud BigQuery.</span></figcaption>
+  </figure>
+</div></section>
+
+<section id="status"><div class="wrap">
+  <h2><span lang="en">Where we are</span><span lang="pt">Onde estamos</span></h2>
+  <p class="sub" lang="en">Honest status, updated November 2026. IGM is a working prototype on the lab bench; it has not been deployed at an industrial plant yet.</p>
+  <p class="sub" lang="pt">Estado real, atualizado em novembro de 2026. O IGM é um protótipo funcionando na bancada do laboratório; ainda não foi instalado numa planta industrial.</p>
+  <ul class="roadmap">
+    <li class="done"><span class="dot"></span><div><span lang="en">Reading pipeline with NVIDIA Cosmos running locally, validated on the bench and with a live camera</span><span lang="pt">Pipeline de leitura com o NVIDIA Cosmos rodando localmente, validado na bancada e com câmera ao vivo</span><small lang="en">Done</small><small lang="pt">Pronto</small></div></li>
+    <li class="done"><span class="dot"></span><div><span lang="en">ESP32-S3 camera device, IoT gateway, cloud pipeline and SCADA dashboard</span><span lang="pt">Dispositivo com câmera ESP32-S3, gateway IoT, pipeline em nuvem e painel SCADA</span><small lang="en">Done</small><small lang="pt">Pronto</small></div></li>
+    <li class="doing"><span class="dot"></span><div><span lang="en">Multi-point calibration of the ESP32 camera, dedicated lighting and comparison with a cloud model on the same images</span><span lang="pt">Calibração em vários pontos da câmera ESP32, iluminação dedicada e comparação com um modelo em nuvem nas mesmas imagens</span><small lang="en">In progress</small><small lang="pt">Em andamento</small></div></li>
+    <li class="next"><span class="dot"></span><div><span lang="en">NVIDIA Jetson as the plant gateway; validation against a calibrated reference gauge</span><span lang="pt">NVIDIA Jetson como gateway da planta; validação contra um manômetro padrão calibrado</span><small lang="en">Next</small><small lang="pt">Próximo</small></div></li>
+    <li class="next"><span class="dot"></span><div><span lang="en">Pilot at an industrial plant</span><span lang="pt">Piloto numa planta industrial</span><small lang="en">Next: we are looking for partners</small><small lang="pt">Próximo: buscamos parceiros</small></div></li>
+  </ul>
+</div></section>
+
+<section id="tech"><div class="wrap">
+  <h2><span lang="en">Technology</span><span lang="pt">Tecnologia</span></h2>
+  <div class="cards">
+    <div class="card">
+      <h3><span lang="en">NVIDIA, in use</span><span lang="pt">NVIDIA, em uso</span></h3>
+      <div class="tags"><span class="tag nv">Cosmos</span><span class="tag nv">NIM</span><span class="tag nv">NGC</span><span class="tag nv">CUDA</span><span class="tag nv">GeForce RTX</span></div>
+    </div>
+    <div class="card">
+      <h3><span lang="en">NVIDIA, next</span><span lang="pt">NVIDIA, próximos</span></h3>
+      <div class="tags"><span class="tag nv">Jetson</span><span class="tag nv">TensorRT</span><span class="tag nv">Omniverse</span><span class="tag nv">Cosmos Transfer</span><span class="tag nv">Metropolis</span></div>
+    </div>
+    <div class="card">
+      <h3><span lang="en">IoT and cloud</span><span lang="pt">IoT e nuvem</span></h3>
+      <div class="tags"><span class="tag">ESP32-S3 · OV2640</span><span class="tag">FastAPI</span><span class="tag">Google Cloud Pub/Sub</span><span class="tag">Firestore</span><span class="tag">BigQuery</span><span class="tag">Cloud Run</span><span class="tag">Streamlit</span></div>
+    </div>
+  </div>
+  <div class="inception" style="margin-top:20px">
+    <div class="badge-box"><img src="assets/img/nvidia-inception-program-badge-rgb-for-screen.svg" width="501" height="217" alt="NVIDIA Inception Program"></div>
+    <p lang="en">LABRIOT is a member of the NVIDIA Inception program. IGM is registered as an NVIDIA Inception product.</p>
+    <p lang="pt">O LABRIOT é membro do NVIDIA Inception program. O IGM está cadastrado como produto no NVIDIA Inception program.</p>
+  </div>
+</div></section>
+
+<section id="team"><div class="wrap">
+  <h2><span lang="en">Team</span><span lang="pt">Equipe</span></h2>
+  <div class="cards">
+    <div class="card">
+      <h3>LABRIOT · UTFPR</h3>
+      <p lang="en">Robotics and IoT Laboratory (Laboratório de Robótica e IoT) at the Federal University of Technology – Paraná (UTFPR), Ponta Grossa campus, Brazil.</p>
+      <p lang="pt">Laboratório de Robótica e IoT da Universidade Tecnológica Federal do Paraná (UTFPR), câmpus Ponta Grossa.</p>
+    </div>
+    <div class="card">
+      <h3>Itamar Iliuk</h3>
+      <p lang="en">Associate Professor at UTFPR and <a href="https://developer.nvidia.com/omniverse/community#ix7qxf">NVIDIA Omniverse Ambassador</a>. Leads LABRIOT.</p>
+      <p lang="pt">Professora Associada da UTFPR e <a href="https://developer.nvidia.com/omniverse/community#ix7qxf">NVIDIA Omniverse Ambassador</a>. Coordena o LABRIOT.</p>
+    </div>
+    <div class="card">
+      <h3><span lang="en">Related work</span><span lang="pt">Trabalho relacionado</span></h3>
+      <p lang="en"><a href="https://itamariliuk.github.io/icu-guardbot/">ICU-GuardBot</a>: the same reading approach, applied to patient monitor screens in the ICU.</p>
+      <p lang="pt"><a href="https://itamariliuk.github.io/icu-guardbot/">ICU-GuardBot</a>: a mesma abordagem de leitura, aplicada às telas dos monitores na UTI.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="contact"><div class="wrap">
+  <h2><span lang="en">Pilots and partnerships</span><span lang="pt">Pilotos e parcerias</span></h2>
+  <p class="sub" lang="en">We are looking for industrial partners for a first pilot. If your plant has analog gauges that are read by hand, talk to LABRIOT at UTFPR Ponta Grossa. A reference implementation of the bench prototype is on <a href="https://github.com/ItamarIliuk/industrial-gauge-monitor">GitHub</a>.</p>
+  <p class="sub" lang="pt">Buscamos parceiros industriais para um primeiro piloto. Se a sua planta tem manômetros analógicos lidos à mão, fale com o LABRIOT na UTFPR Ponta Grossa. Uma implementação de referência do protótipo de bancada está no <a href="https://github.com/ItamarIliuk/industrial-gauge-monitor">GitHub</a>.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>© 2026 LABRIOT · UTFPR Ponta Grossa</p>
+  <p>© 2026 NVIDIA, the NVIDIA logo, NVIDIA Cosmos, NVIDIA GeForce RTX, NVIDIA Inception, NVIDIA Jetson, NVIDIA Metropolis, NVIDIA NIM, NVIDIA Omniverse and NVIDIA TensorRT are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and other countries.</p>
+  <p lang="en">Other product names are trademarks of their owners.</p>
+  <p lang="pt">Outros nomes de produtos são marcas dos seus donos.</p>
+</div></footer>
+
+<script>
+(function(){
+  var html=document.documentElement;
+  function setLang(l){
+    html.lang=l;
+    document.querySelectorAll('[data-set-lang]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.setLang===l));});
+    try{localStorage.setItem('lang',l);}catch(e){}
+  }
+  var saved=null;
+  try{saved=localStorage.getItem('lang');}catch(e){}
+  if(!saved){saved=(navigator.language||'').toLowerCase().indexOf('pt')===0?'pt':'en';}
+  setLang(saved);
+  document.querySelectorAll('[data-set-lang]').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.setLang);});});
+})();
+</script>
+</body>
+</html>
